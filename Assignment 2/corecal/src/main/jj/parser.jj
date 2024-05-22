@@ -1,0 +1,101 @@
+PARSER_BEGIN(MyParser)
+package org.example;
+import org.example.Token;import org.example.models.Event;
+import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.time.format.DateTimeFormatter;
+
+public class MyParser {
+    private static ArrayList<Event> events;
+    private static ArrayList<String> scripts;
+    private static HashMap<String, List<Map<String, String>>> pluginInfoMap;
+}
+
+PARSER_END(MyParser)
+
+SKIP: {
+  " " |
+  "\n" |
+  "\t" |
+  "\r"
+}
+
+TOKEN: {
+  <EVENT: "event"> |
+  <SCRIPT: "script"> |
+  <PLUGIN: "plugin"> |
+  <ID: "edu.curtin.calplugins.Repeat" | "edu.curtin.calplugins.Notify"> |
+  <ARGS: "{" "}"> |
+  <DATE: (["0"-"9"])+ "-" (["0"-"9"])+ "-" (["0"-"9"])+> |
+  <TIME: (["0"-"9"])+ ":" (["0"-"9"])+ ":" (["0"-"9"])+> |
+  <DURATION: (["0"-"9"])+> |
+  <STRING: "\"" (<EMPTY_STRING> | ~["\""] | "\"\"")+ "\"" > |
+  <EMPTY_STRING: "\"\""> |
+  <ALLDAY: "all-day">
+}
+
+void parseFile():
+{
+ events = new ArrayList<Event>();
+ scripts = new ArrayList<String>();
+ pluginInfoMap = new HashMap<String, List<Map<String, String>>>();
+ Token title = null;
+ Token date = null;
+ Token time = null;
+ Token duration = null;
+ Token script;
+ Token pluginId;
+ Token allDay = null;
+}
+{
+  (
+    <EVENT> date = <DATE> [allDay = <ALLDAY>] [time = <TIME>] [duration = <DURATION>] title = <STRING>
+    {
+          if(allDay == null)
+          {
+              LocalDateTime dateTime = LocalDateTime.parse(date.image+ " " +time.image, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+              events.add(new Event(title.image, dateTime, Integer.parseInt(duration.image), Event.EventType.TIME_OF_DAY));
+          } else {
+              LocalDateTime dateTime = LocalDateTime.parse(date.image+ " " +"00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+              events.add(new Event(title.image, dateTime, 24, Event.EventType.ALL_DAY));
+          }
+          allDay = null;
+    }
+  |
+    <SCRIPT> script = <STRING>
+    {
+      scripts.add(script.toString().replaceAll("\"\"", "\""));
+    }
+    |
+    <PLUGIN> pluginId = <ID> <ARGS>
+    {
+      pluginInfoMap.put(pluginId.image, new ArrayList<Map<String, String>>());
+      System.out.println(pluginId.image);
+    }
+  )*
+}
+ArrayList<Event> getEvents() :
+{
+}
+{
+  {return events;}
+}
+ArrayList<String> getScripts() :
+{
+}
+{
+  {return scripts;}
+}
+HashMap<String, List<Map<String, String>>> getPlugins() :
+{
+}
+{
+  {return pluginInfoMap;}
+}
+
+

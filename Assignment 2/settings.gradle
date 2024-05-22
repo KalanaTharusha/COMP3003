@@ -1,0 +1,8 @@
+rootProject.name = 'terminalgrid'
+include ':lib'
+include 'corecal'
+include 'api'
+include 'models'
+include 'notifyPlugin'
+include 'repeatPlugin'
+

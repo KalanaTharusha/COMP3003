@@ -1,0 +1,29 @@
+event 2023-10-29 15:00:00 90 "Meeting 1"
+event 2023-10-31 08:30:45 45 "Meeting 2"
+event 2023-12-25
+    all-day "Christmas Day"
+
+plugin edu.curtin.calplugins.Repeat{}
+
+script "
+from org.example import CalendarApiImpl
+from org.example.models import Event
+from java.time import LocalDateTime, Month
+e = Event(""Independence Day - LK"", LocalDateTime.of(2023, Month.FEBRUARY, 04, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+
+e = Event(""New Year - LK"", LocalDateTime.of(2023, Month.APRIL, 14, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+
+e = Event(""New Year - AU"", LocalDateTime.of(2023, Month.JANUARY, 01, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+
+e = Event(""Vesak"", LocalDateTime.of(2024, Month.MAY, 23, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+
+e = Event(""Christmas Day"", LocalDateTime.of(2023, Month.DECEMBER, 25, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+
+e = Event(""Thanksgiving Day"", LocalDateTime.of(2023, Month.NOVEMBER, 23, 0, 0), 0, Event.EventType.ALL_DAY)
+api.addEvent(e)
+"
